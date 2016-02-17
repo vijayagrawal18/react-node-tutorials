@@ -20,10 +20,12 @@
                         return (includeOutOfStock || item.stocked) && item.name.startsWith(filterText);
                       })
         this.setState({data: newData, includeOutOfStock: includeOutOfStock, filterText: filterText});
-        console.log(newData);
       },
       handleFilter: function(e){
         this.calculateList(e.target.value, this.state.includeOutOfStock);
+      },
+      handleOutOfStock: function(e){
+        this.calculateList(this.state.filterText, e.target.checked)
       },
       render : function(){
        
@@ -31,7 +33,7 @@
         return (
           <div className='ComponentBox'>
           <h3> Catalogue</h3>
-          <SearchBox handleFilter={this.handleFilter}></SearchBox>
+          <SearchBox handleFilter={this.handleFilter} handleOutOfStock={this.handleOutOfStock} includeOutOfStock={this.state.includeOutOfStock}></SearchBox>
           <CategoriesContainer data={this.state.data}></CategoriesContainer>
           </div>
           );
@@ -46,8 +48,8 @@ var CategoriesContainer = React.createClass({
           fdata[obj.category] = (fdata[obj.category] || []);
           fdata[obj.category].push(obj);
         });
-        var cboxes = Object.keys(fdata).map(function(category){
-          return (<CategoryBox category={category} items={fdata[category]}></CategoryBox>);
+        var cboxes = Object.keys(fdata).map(function(category, index){
+          return (<CategoryBox key={index} category={category} items={fdata[category]}></CategoryBox>);
         });
         return (<div>{cboxes}</div>);
       }
@@ -56,7 +58,13 @@ var CategoriesContainer = React.createClass({
 var SearchBox = React.createClass(
   {
     render : function(){
-      return (<input type="text" onChange={this.props.handleFilter} placeholder="Search..."></input>);
+      return (
+      <div>
+          <input className="textBox" type="text" onChange={this.props.handleFilter} placeholder="Search..."></input>
+          <br/>
+          <input type="checkBox" checked={this.props.includeOutOfStock} onChange={this.props.handleOutOfStock} id ="checkbox_id">Include out of stock</input>
+          </div>
+        );
     }
   }
 );
@@ -64,8 +72,8 @@ var SearchBox = React.createClass(
 var CategoryBox = React.createClass(
   {
     render : function(){
-      var items = this.props.items.map(function(item){
-        return (<LineItem item={item}></LineItem>);
+      var items = this.props.items.map(function(item, index){
+        return (<LineItem key={index} item={item}></LineItem>);
       });
       return (<table>
           <tbody>
