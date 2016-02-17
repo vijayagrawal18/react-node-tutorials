@@ -1,4 +1,4 @@
-    var data = [
+    var dataStore = [
   {category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
   {category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
   {category: "Sporting Goods", price: "$29.99", stocked: false, name: "Basketball"},
@@ -8,24 +8,40 @@
 ];
 
   window.ComponentBox = React.createClass(
-  {
-    render : function(){
-      var fdata = {};
-      data.forEach(function(obj){
-        fdata[obj.category] = (fdata[obj.category] || []);
-        fdata[obj.category].push(obj);
-      });
-      var cboxes = Object.keys(fdata).map(function(category){
-        return (<CategoryBox category={category} items={fdata[category]}></CategoryBox>)
-      });
+    {
+      getInitialState: function() {
+        return {data: [], includeOutOfStock: true, filterText: ""};
+      },
+      componentDidMount: function() {
+        this.setState({data: [], includeOutOfStock: true, filterText: ""});
+      },
+      calculateList: function(filterText, includeOutOfStock){
+        var newData = dataStore.filter(function(item){
+                        return (includeOutOfStock || item.stocked) && item.name.startsWith(filterText);
+                      })
+        this.setState({data: newData, includeOutOfStock: includeOutOfStock, filterText: filterText});
+        console.log(newData);
+      },
+      handleFilter: function(e){
+        this.calculateList(e.target.value, this.state.includeOutOfStock);
+      },
+      render : function(){
+        var fdata = {};
+        this.state.data.forEach(function(obj){
+          fdata[obj.category] = (fdata[obj.category] || []);
+          fdata[obj.category].push(obj);
+        });
+        var cboxes = Object.keys(fdata).map(function(category){
+          return (<CategoryBox category={category} items={fdata[category]}></CategoryBox>)
+        });
 
-      return (
-        <div className='ComponentBox'>
-        Comments
-        <SearchBox></SearchBox>
-        {cboxes}
-        </div>
-        );
+        return (
+          <div className='ComponentBox'>
+          <h3> Catalogue</h3>
+          <SearchBox handleFilter={this.handleFilter}></SearchBox>
+          {cboxes}
+          </div>
+          );
     }
   }
 );
@@ -33,7 +49,7 @@
 var SearchBox = React.createClass(
   {
     render : function(){
-      return (<div>SearchBox</div>);
+      return (<input type="text" onChange={this.props.handleFilter} placeholder="Search..."></input>);
     }
   }
 );
@@ -72,8 +88,8 @@ var CategoryBox = React.createClass(
   }
 );
 
-appendExample("Example1",
+appendExample("Basic Table",
       function(){
-              ReactDOM.render(<ComponentBox></ComponentBox>,document.getElementById('content'));
+              ReactDOM.render(<ComponentBox data = {dataStore}></ComponentBox>,document.getElementById('content'));
       });
 
