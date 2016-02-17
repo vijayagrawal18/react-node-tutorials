@@ -13,7 +13,7 @@
         return {data: [], includeOutOfStock: true, filterText: ""};
       },
       componentDidMount: function() {
-        this.setState({data: [], includeOutOfStock: true, filterText: ""});
+        this.setState({data: dataStore, includeOutOfStock: true, filterText: ""});
       },
       calculateList: function(filterText, includeOutOfStock){
         var newData = dataStore.filter(function(item){
@@ -26,25 +26,32 @@
         this.calculateList(e.target.value, this.state.includeOutOfStock);
       },
       render : function(){
-        var fdata = {};
-        this.state.data.forEach(function(obj){
-          fdata[obj.category] = (fdata[obj.category] || []);
-          fdata[obj.category].push(obj);
-        });
-        var cboxes = Object.keys(fdata).map(function(category){
-          return (<CategoryBox category={category} items={fdata[category]}></CategoryBox>)
-        });
+       
 
         return (
           <div className='ComponentBox'>
           <h3> Catalogue</h3>
           <SearchBox handleFilter={this.handleFilter}></SearchBox>
-          {cboxes}
+          <CategoriesContainer data={this.state.data}></CategoriesContainer>
           </div>
           );
     }
   }
 );
+
+var CategoriesContainer = React.createClass({
+      render: function(){
+        var fdata = {};
+        this.props.data.forEach(function(obj){
+          fdata[obj.category] = (fdata[obj.category] || []);
+          fdata[obj.category].push(obj);
+        });
+        var cboxes = Object.keys(fdata).map(function(category){
+          return (<CategoryBox category={category} items={fdata[category]}></CategoryBox>);
+        });
+        return (<div>{cboxes}</div>);
+      }
+});
 
 var SearchBox = React.createClass(
   {
@@ -61,8 +68,10 @@ var CategoryBox = React.createClass(
         return (<LineItem item={item}></LineItem>);
       });
       return (<table>
-          <tr><th colSpan="2">{this.props.category}</th></tr>
-          {items}
+          <tbody>
+            <tr><th colSpan="2">{this.props.category}</th></tr>
+            {items}
+          </tbody>  
         </table>
       );
     }
@@ -90,6 +99,6 @@ var CategoryBox = React.createClass(
 
 appendExample("Basic Table",
       function(){
-              ReactDOM.render(<ComponentBox data = {dataStore}></ComponentBox>,document.getElementById('content'));
+              ReactDOM.render(<ComponentBox></ComponentBox>,document.getElementById('content'));
       });
 
