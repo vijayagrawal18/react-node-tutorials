@@ -58,7 +58,7 @@ var SearchBox = React.createClass(
         );
     }
   }
-);"    m   n... .      ["""]
+);
 var ProductTable = React.createClass({
       render: function(){
         var fdata = {};
