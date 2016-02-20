@@ -7,41 +7,59 @@
   {category: "Electronics", price: "$199.99", stocked: true, name: "Nexus 7"}
 ];
 
-  window.ComponentBox = React.createClass(
+  var ComponentBox = React.createClass(
     {
       getInitialState: function() {
-        return {data: [], includeOutOfStock: true, filterText: ""};
+        return {includeOutOfStock: true, filterText: ""};
       },
       componentDidMount: function() {
-        this.setState({data: dataStore, includeOutOfStock: true, filterText: ""});
+        this.setState({includeOutOfStock: true, filterText: ""});
       },
-      calculateList: function(filterText, includeOutOfStock){
+      calculateList: function(){
+        var filterText = this.state.filterText;
+        var includeOutOfStock = this.state.includeOutOfStock;
         var newData = dataStore.filter(function(item){
                         return (includeOutOfStock || item.stocked) && item.name.startsWith(filterText);
                       })
-        this.setState({data: newData, includeOutOfStock: includeOutOfStock, filterText: filterText});
+        return newData;
       },
-      handleFilter: function(e){
-        this.calculateList(e.target.value, this.state.includeOutOfStock);
-      },
-      handleOutOfStock: function(e){
-        this.calculateList(this.state.filterText, e.target.checked)
+      handleFilter: function(filterText, includeOutOfStock){
+        this.setState({filterText: filterText, includeOutOfStock: filterText, includeOutOfStock});
       },
       render : function(){
        
-
+        var filteredData = this.calculateList();
         return (
           <div className='ComponentBox'>
-          <h3> Catalogue</h3>
-          <SearchBox handleFilter={this.handleFilter} handleOutOfStock={this.handleOutOfStock} includeOutOfStock={this.state.includeOutOfStock}></SearchBox>
-          <CategoriesContainer data={this.state.data}></CategoriesContainer>
+            <h3> Catalogue</h3>
+            <SearchBox handleFilter={this.handleFilter} filterText={this.state} includeOutOfStock={this.state.includeOutOfStock}></SearchBox>
+            <ProductTable data={filteredData}></ProductTable>
           </div>
           );
     }
   }
 );
 
-var CategoriesContainer = React.createClass({
+var SearchBox = React.createClass(
+  {
+    handleFilter: function(){
+      this.props.handleFilter(
+          this.refs.filterText.value,
+          this.refs.includeOutOfStock.checked
+        )
+    },
+    render : function(){
+      return (
+      <div>
+          <input className="textBox" type="text" onChange={this.handleFilter} ref="filterText" placeholder="Search..."></input>
+          <br/>
+          <input type="checkBox" checked={this.props.includeOutOfStock} ref="includeOutOfStock" onChange={this.handleFilter} id ="checkbox_id">{' '}Include out of stock</input>
+          </div>
+        );
+    }
+  }
+);"    m   n... .      ["""]
+var ProductTable = React.createClass({
       render: function(){
         var fdata = {};
         this.props.data.forEach(function(obj){
@@ -51,36 +69,25 @@ var CategoriesContainer = React.createClass({
         var cboxes = Object.keys(fdata).map(function(category, index){
           return (<CategoryBox key={index} category={category} items={fdata[category]}></CategoryBox>);
         });
-        return (<div>{cboxes}</div>);
+        return (<table>{cboxes}</table>);
       }
 });
-
-var SearchBox = React.createClass(
-  {
-    render : function(){
-      return (
-      <div>
-          <input className="textBox" type="text" onChange={this.props.handleFilter} placeholder="Search..."></input>
-          <br/>
-          <input type="checkBox" checked={this.props.includeOutOfStock} onChange={this.props.handleOutOfStock} id ="checkbox_id">Include out of stock</input>
-          </div>
-        );
-    }
-  }
-);
 
 var CategoryBox = React.createClass(
   {
     render : function(){
       var items = this.props.items.map(function(item, index){
-        return (<LineItem key={index} item={item}></LineItem>);
+        return (
+              
+              <LineItem key={index} item={item}></LineItem>
+          );
       });
-      return (<table>
-          <tbody>
-            <tr><th colSpan="2">{this.props.category}</th></tr>
-            {items}
-          </tbody>  
-        </table>
+      return (
+            <tbody>
+              <tr><th colSpan="2">{this.props.category}</th></tr>
+              {items}
+              </tbody>
+            
       );
     }
   }
