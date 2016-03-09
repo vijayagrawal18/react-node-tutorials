@@ -113,7 +113,7 @@ var CategoryBox = React.createClass(
 );
 
 appendExample("Basic Table",
-      function(){
-              ReactDOM.render(<ComponentBox></ComponentBox>,document.getElementById('content'));
+      function(container_id){
+              ReactDOM.render(<ComponentBox></ComponentBox>,document.getElementById(container_id));
       });
 
